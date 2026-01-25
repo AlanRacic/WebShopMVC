@@ -1,50 +1,82 @@
-# WebShopMVC — ASP.NET Core MVC eCommerce Application
+# WebShopMVC â€” ASP.NET Core MVC eCommerce Application (.NET 10)
 
-## Overview  
-WebShopMVC is a full-stack eCommerce application built with ASP.NET Core MVC and Entity Framework Core.  
-It includes secure authentication, an admin management panel, product catalog management, a shopping cart system, and a complete order/checkout workflow.  
-The project follows clean, modular architecture with a strong focus on maintainability and scalability.
+## Overview
+WebShopMVC is a full-stack eCommerce application built with **C#** and **.NET 10**, using **ASP.NET Core MVC**, **SQL Server**, and **Entity Framework Core (Code-First)**.  
+It includes **authentication and authorization with ASP.NET Identity**, an **admin area** for managing catalog content, and complete **shopping cart and checkout workflows**.
 
----
-
-## Tech Stack  
-- C#, .NET 10  
-- ASP.NET Core MVC  
-- Entity Framework Core (Code-First)  
-- SQL Server  
-- ASP.NET Core Identity  
-- Razor Views  
-- Dependency Injection  
-- LINQ  
+The project is structured with a **clean, maintainable architecture**, emphasizing clear separation of concerns, predictable data workflows, and an extensible codebase.
 
 ---
 
-## Key Features  
-- Secure authentication with Identity (login, register, roles)  
-- Full Admin Area for managing products, categories, and images  
-- Shopping cart system with session-based or user-based persistence  
-- Checkout workflow with order creation and storage  
-- LINQ-based filtering, sorting, and pagination  
-- EF Core Code-First migrations and relational modeling  
-- Repository Pattern and Dependency Injection for clean architecture  
-- Responsive UI built with Razor Views  
+## Tech Stack
+- **C# / .NET 10**
+- **ASP.NET Core MVC**
+- **SQL Server**
+- **Entity Framework Core (Code-First + Migrations)**
+- **ASP.NET Identity**
+- **Razor Views**
+- **LINQ**
+- **Dependency Injection**
 
 ---
 
-## Architecture & Concepts  
-- Clean Architecture principles  
-- Repository & Service layers  
-- Code-First EF Core modeling  
-- MVC pattern with strong separation of concerns  
-- Centralized configuration using *Program.cs* and *appsettings.json*  
-- Modular folder structure for clarity and maintainability  
+## Key Features
+- **Authentication and authorization** with ASP.NET Identity (registration, login, role-based access)
+- **Admin area** for managing products, categories, and images
+- **Product catalog workflows** with structured CRUD operations
+- **Shopping cart** with persistence (session-based and/or user-based, depending on configuration)
+- **Checkout workflow** with order creation and storage
+- **Filtering, sorting, and pagination** using LINQ
+- **Database migrations** and relational modeling using Entity Framework Core
+- **Layered structure** with repository and service layers for maintainable data access and business logic
 
 ---
 
-## Skills Demonstrated  
-C# · ASP.NET Core MVC · EF Core · SQL Server · Identity · LINQ · Repository Pattern · Dependency Injection · Clean Architecture · Razor Views
+## Architecture
+- MVC structure with clear controller/view separation
+- Repository and service layers to isolate business logic and persistence
+- Centralized configuration via `Program.cs` and `appsettings.json`
+- Modular folder structure for clarity and maintainability
+
+> Note: This project applies Clean Architecture principles where they improve maintainability and separation, while keeping implementation practical and easy to follow in an MVC application.
 
 ---
 
-## Project Status  
-Actively maintained and continuously improved based on real-world ASP.NET MVC learning and production-level patterns.
+## How to Run (Local Setup)
+### Prerequisites
+- **.NET SDK 10**
+- **SQL Server** (local or Docker)
+- (Optional) **Visual Studio 2022** or **Rider**
+
+### Steps
+1. Clone the repository  
+   `git clone https://github.com/alanracic/WebShopMVC.git`
+
+2. Configure the connection string in `appsettings.json`
+
+3. Apply migrations and create the database  
+   `dotnet ef database update`
+
+4. Run the application  
+   `dotnet run`
+
+---
+
+## Project Structure (High-Level)
+- `Areas/Admin` â€” admin controllers and views
+- `Controllers` â€” user-facing MVC controllers
+- `Data` â€” database context, migrations, persistence setup
+- `Models` â€” domain models / entities
+- `Repositories` â€” data-access layer abstractions and implementations
+- `Services` â€” business logic and workflows
+- `Views` â€” Razor UI
+
+---
+
+## Skills Demonstrated
+C# Â· .NET 10 Â· ASP.NET Core MVC Â· SQL Server Â· Entity Framework Core Â· ASP.NET Identity Â· LINQ Â· Dependency Injection Â· Repository Pattern Â· Razor Views Â· Web application architecture
+
+---
+
+## Status
+Actively maintained and iteratively improved as part of a professional .NET portfolio, with emphasis on clean structure, reliable data workflows, and production-oriented patterns.
