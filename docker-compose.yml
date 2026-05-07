@@ -1,0 +1,26 @@
+services:
+  webshopmvc:
+    build:
+      context: .
+      dockerfile: WebShopMVC/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=WebShopMVC;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: webshopmvc-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong!Passw0rd"
+    ports:
+      - "14333:1433"
+    volumes:
+      - webshopmvc-sqldata:/var/opt/mssql
+
+volumes:
+  webshopmvc-sqldata:
