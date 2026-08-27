@@ -1,165 +1,315 @@
-# WebShopMVC — ASP.NET Core MVC eCommerce Application (.NET 10)
+# WebShopMVC
 
-## Containerized Application Setup
+### ASP.NET Core MVC e-commerce application with Identity, relational data, end-to-end order workflows, and Docker Compose
 
-Dockerized ASP.NET Core MVC application with SQL Server container support using Docker Compose.
+WebShopMVC is a **.NET 10 / ASP.NET Core MVC** e-commerce application built around storefront, shopping cart, checkout, order, and administration workflows.
 
----
-
-## Overview
-
-WebShopMVC is a full-stack eCommerce application built with **C#** and **.NET 10**, using **ASP.NET Core MVC**, **SQL Server**, and **Entity Framework Core (Code-First)**.
-
-The application includes **authentication and authorization with ASP.NET Identity**, an **admin area** for catalog management, complete **shopping cart and checkout workflows**, and a containerized deployment setup using Docker and Docker Compose.
-
-The project is structured with a clean, maintainable architecture emphasizing separation of concerns, predictable data workflows, containerized application deployment, and production-oriented backend practices aligned with modern ASP.NET Core development.
-
-The application supports a multi-container environment consisting of:
-- ASP.NET Core MVC application container
-- SQL Server container
-- Docker Compose orchestration
-- Automatic EF Core migrations during application startup
+The application uses **Entity Framework Core with SQL Server** for persistence, **ASP.NET Core Identity** for authentication and role-based authorization, Razor views for the UI, and Docker Compose for a reproducible local application + database environment.
 
 ---
 
-## Tech Stack
+## Core Workflows
 
-**Core**  
-C# · .NET 10 · ASP.NET Core MVC
+### Storefront
 
-**Database & Persistence**  
-SQL Server · Entity Framework Core · Code-First · EF Core Migrations
+* Product catalog with images and category associations
+* Product detail pages
+* Filtering by category and price range
+* Sorting by price or product name
+* Application-level pagination
+* Product quantity and discount information
 
-**Authentication & Security**  
-ASP.NET Identity · Authentication · Authorization
+### Shopping Cart
 
-**Architecture & Practices**  
-Dependency Injection · Repository Pattern · Service Layer · LINQ · Razor Views
+The cart is stored in ASP.NET Core session and supports:
 
-**Containerization & Deployment**  
-Docker · Docker Compose · SQL Server Container · Containerized Application Workflow
+* adding and removing products
+* changing quantities
+* stock-aware quantity validation
+* discounted line-total calculation
+* validation before checkout
 
----
+If the requested quantity exceeds available stock, the cart quantity is adjusted before the order can be created.
 
-## Key Features
+### Checkout & Orders
 
-- Authentication and authorization with ASP.NET Identity
-- Role-based access control and user management
-- Admin area for managing products, categories, and images
-- Product catalog workflows with structured CRUD operations
-- Shopping cart functionality with session-based persistence
-- Checkout workflow with order creation and relational storage
-- Filtering, sorting, and pagination using LINQ
-- Database migrations and relational modeling using Entity Framework Core
-- Repository and service layers for maintainable business logic and persistence
-- Dockerized ASP.NET Core MVC application setup
-- SQL Server container integration using Docker Compose
-- Automatic EF Core migrations during application startup
-- Multi-container application orchestration using Docker Compose
+Checkout is available to authenticated users and captures billing and shipping information together with order line items.
 
----
+When an order is created:
 
-## Architecture
+1. the order is persisted to SQL Server;
+2. cart items are converted into `OrderItem` records;
+3. product stock is reduced;
+4. cart and checkout session state are cleared.
 
-- MVC structure with clear controller/view separation
-- Repository and service layers isolating business logic and persistence
-- Centralized configuration via `Program.cs` and `appsettings.json`
-- Modular folder structure for maintainability and scalability
-- Containerized multi-service application environment using Docker Compose
-- SQL Server integration through container networking and environment configuration
+Users can review their own order history and order details. Access to individual orders includes an ownership check against the currently authenticated user.
 
-> Note: This project applies Clean Architecture principles where they improve maintainability and separation, while keeping implementation practical and easy to follow in an ASP.NET Core MVC application.
+### Administration
 
----
+The `/Admin` area is protected with role-based authorization:
 
-## What This Project Demonstrates
-
-- Building full-stack web applications using ASP.NET Core MVC
-- Implementing authentication and authorization using ASP.NET Identity
-- Managing relational data using SQL Server and Entity Framework Core
-- Applying Code-First development workflows and EF Core migrations
-- Structuring maintainable MVC applications using repository and service layers
-- Designing containerized ASP.NET Core application environments
-- Running ASP.NET Core and SQL Server containers using Docker Compose
-- Understanding containerized database workflows and application startup orchestration
-- Applying modern deployment-oriented backend development practices
-
----
-
-## How to Run (Local Setup)
-
-### Prerequisites
-
-- .NET SDK 10
-- Docker Desktop
-- Optional: Visual Studio 2022 or Rider
-
-### Clone Repository
-
-```bash
-git clone https://github.com/alanracic/WebShopMVC.git
+```csharp
+[Authorize(Roles = "Admin")]
 ```
 
-### Run with Docker Compose
+Administrative workflows include management of:
 
-Build and start the application containers:
+* products
+* categories
+* product-category associations
+* product images
+* orders and order items
+* Identity roles
+
+Deleting an order restores the associated quantities back to product inventory before removing the order.
+
+---
+
+## Application Structure
+
+WebShopMVC follows a straightforward ASP.NET Core MVC structure:
+
+```text
+Browser
+  ↓
+Razor Views
+  ↓
+MVC Controllers
+  ├── ASP.NET Core Session
+  │      └── Shopping Cart
+  │
+  ├── ASP.NET Core Identity
+  │      ├── Authentication
+  │      └── Role-based Authorization
+  │
+  └── ApplicationDbContext
+         ↓
+     Entity Framework Core
+         ↓
+      SQL Server
+```
+
+Controllers coordinate application workflows and access `ApplicationDbContext` through dependency injection.
+
+Administrative functionality is separated using ASP.NET Core Areas.
+
+---
+
+## Data Model
+
+The main relational model includes:
+
+```text
+ApplicationUser
+      │
+      └── Orders
+            │
+            └── OrderItems ───── Products
+                                  │
+                                  ├── Images
+                                  │
+                                  └── ProductCategories ───── Categories
+```
+
+Primary application entities:
+
+* `ApplicationUser`
+* `Product`
+* `Category`
+* `ProductCategory`
+* `Image`
+* `Order`
+* `OrderItem`
+
+`ProductCategory` represents the many-to-many relationship between products and categories.
+
+Order items preserve product price, quantity, and discount information recorded during checkout.
+
+---
+
+## Authentication & Authorization
+
+Authentication is provided by **ASP.NET Core Identity** with Entity Framework Core-backed Identity stores.
+
+The application uses:
+
+* registered Identity users
+* confirmed-account sign-in
+* Identity roles
+* `[Authorize]` for authenticated workflows
+* `[Authorize(Roles = "Admin")]` for administration
+* ownership checks for user-specific order details
+
+A development Admin account is initialized separately from EF Core migrations and only in the **Development** environment.
+
+Development credentials are read from configuration and are not stored in source code.
+
+---
+
+## Development & Running
+
+EF Core migrations are applied automatically during application startup using `MigrateAsync()`.
+
+SQL Server configuration enables transient retry handling with `EnableRetryOnFailure()`. Initialization failures are logged and cause startup to fail rather than allowing the application to continue with an invalid database state.
+
+### Visual Studio / Local Development
+
+The project supports **User Secrets** for development Admin credentials.
+
+Configure:
+
+```json
+{
+  "DevelopmentAdmin": {
+    "Email": "admin@example.com",
+    "Password": "replace-with-a-strong-local-password"
+  }
+}
+```
+
+In Visual Studio:
+
+```text
+Right-click WebShopMVC
+→ Manage User Secrets
+```
+
+The default local connection string targets SQL Server Express. It can be overridden through configuration if another SQL Server instance is used.
+
+Run from the repository root:
+
+```bash
+dotnet restore
+dotnet run --project WebShopMVC/WebShopMVC.csproj
+```
+
+### Docker Compose
+
+Docker Compose runs:
+
+```text
+Docker Compose
+    │
+    ├── WebShopMVC
+    │      └── ASP.NET Core 10
+    │
+    └── SQL Server 2022
+           └── persistent Docker volume
+```
+
+Copy:
+
+```text
+.env.example
+```
+
+to:
+
+```text
+.env
+```
+
+and replace the placeholder values:
+
+```dotenv
+SQL_SA_PASSWORD=ReplaceWithStrongLocalSqlPassword1!
+DEVELOPMENT_ADMIN_EMAIL=admin@admin.com
+DEVELOPMENT_ADMIN_PASSWORD=ReplaceWithStrongLocalAdminPassword1!
+```
+
+`.env` is excluded from Git and the Docker build context.
+
+Start the environment:
 
 ```bash
 docker compose up --build
 ```
 
-Run the application:
+Application:
 
 ```text
 http://localhost:8080
 ```
 
-### Docker Environment
-
-The Docker Compose setup includes:
-- ASP.NET Core MVC application container
-- SQL Server container
-- Container networking configuration
-- Automatic EF Core migration execution during startup
-
-### Alternative Local Development Setup
-
-Configure the connection string in `appsettings.json`.
-
-Apply migrations:
+Stop containers:
 
 ```bash
-dotnet ef database update
+docker compose down
 ```
 
-Run the application:
+Remove containers and the persisted SQL Server development volume:
 
 ```bash
-dotnet run
+docker compose down -v
+```
+
+> `-v` deletes the local database volume.
+
+---
+
+## Project Structure
+
+```text
+WebShopMVC/
+├── Areas/
+│   ├── Admin/
+│   └── Identity/
+├── Controllers/
+│   ├── CartController.cs
+│   └── HomeController.cs
+├── Data/
+│   ├── ApplicationDbContext.cs
+│   ├── ApplicationUser.cs
+│   ├── DevelopmentDataInitializer.cs
+│   └── Migrations/
+├── Extensions/
+├── Models/
+├── Views/
+├── wwwroot/
+├── Program.cs
+└── Dockerfile
+
+docker-compose.yml
+.env.example
 ```
 
 ---
 
-## Project Structure (High-Level)
+## Technology Stack
 
-- `Areas/Admin` — admin controllers and views
-- `Controllers` — user-facing MVC controllers
-- `Data` — database context, migrations, persistence setup
-- `Models` — domain models and entities
-- `Repositories` — data-access abstractions and implementations
-- `Services` — business logic and workflows
-- `Views` — Razor UI
-- `Dockerfile` — ASP.NET Core container configuration
-- `docker-compose.yml` — multi-container orchestration setup
+**Backend**
+C# · .NET 10 · ASP.NET Core MVC · Razor
+
+**Data**
+SQL Server · Entity Framework Core · Code-First · EF Core Migrations · LINQ
+
+**Security**
+ASP.NET Core Identity · Authentication · Role-based Authorization
+
+**Business Workflows**
+Product Catalog · Shopping Cart · Checkout · Orders · Inventory · Administration
+
+**Infrastructure**
+Docker · Docker Compose · SQL Server Container · User Secrets · Environment Configuration
 
 ---
 
-## Skills Demonstrated
+## Design Scope
 
-C# · .NET 10 · ASP.NET Core MVC · SQL Server · Entity Framework Core · ASP.NET Identity · LINQ · Dependency Injection · Repository Pattern · Razor Views · Docker · Docker Compose · SQL Server Container · EF Core Migrations · Containerized Application Architecture
+WebShopMVC is intentionally designed as a focused MVC e-commerce application rather than distributed e-commerce infrastructure.
+
+Key implementation choices include:
+
+* direct EF Core access from MVC controllers;
+* session-backed shopping cart state;
+* application-level catalog filtering, sorting, and pagination;
+* local checkout and order processing without an external payment provider;
+* automatic migrations and Development-only Admin initialization.
+
+In a larger production system, these areas could evolve toward dedicated application services, database-level pagination, distributed session/cache infrastructure, external payment workflows, and independently managed database deployments.
 
 ---
 
-## Project Status
+## License
 
-Actively maintained and iteratively improved as part of a professional .NET portfolio, demonstrating full-stack ASP.NET Core MVC development, relational database workflows, containerized application deployment, and production-oriented backend architecture patterns aligned with modern .NET development practices.
+This project is licensed under the [MIT License](LICENSE).
