@@ -9,14 +9,16 @@ services:
       - sqlserver
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=WebShopMVC;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=WebShopMVC;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true;"
+      DevelopmentAdmin__Email: "${DEVELOPMENT_ADMIN_EMAIL}"
+      DevelopmentAdmin__Password: "${DEVELOPMENT_ADMIN_PASSWORD}"
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: webshopmvc-sqlserver
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "YourStrong!Passw0rd"
+      MSSQL_SA_PASSWORD: "${SQL_SA_PASSWORD}"
     ports:
       - "14333:1433"
     volumes:

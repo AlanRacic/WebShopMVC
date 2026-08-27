@@ -10,7 +10,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(
+        connectionString,
+        sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -26,20 +28,32 @@ builder.Services.AddSession();
 var app = builder.Build();
 
 // Automatically apply EF Core migrations on startup.
-// Useful when running SQL Server inside Docker.
+// Development-only seed data is created after migrations.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
     try
     {
-        var context = services.GetRequiredService<ApplicationDbContext>();
+        var context =
+            services.GetRequiredService<ApplicationDbContext>();
 
-        context.Database.Migrate();
+        await context.Database.MigrateAsync();
+
+        if (app.Environment.IsDevelopment())
+        {
+            await DevelopmentDataInitializer.SeedAsync(
+                services,
+                app.Configuration);
+        }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"Database migration failed: {ex.Message}");
+        app.Logger.LogError(
+            ex,
+            "Database initialization failed.");
+
+        throw;
     }
 }
 
