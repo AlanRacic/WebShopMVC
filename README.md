@@ -111,16 +111,6 @@ ApplicationUser
                                   └── ProductCategories ───── Categories
 ```
 
-Primary application entities:
-
-* `ApplicationUser`
-* `Product`
-* `Category`
-* `ProductCategory`
-* `Image`
-* `Order`
-* `OrderItem`
-
 `ProductCategory` represents the many-to-many relationship between products and categories.
 
 Order items preserve product price, quantity, and discount information recorded during checkout.
@@ -174,7 +164,7 @@ Right-click WebShopMVC
 → Manage User Secrets
 ```
 
-The default local connection string targets SQL Server Express. It can be overridden through configuration if another SQL Server instance is used.
+The default local connection string targets SQL Server Express and can be overridden through configuration if another SQL Server instance is used.
 
 Run from the repository root:
 
@@ -244,34 +234,6 @@ docker compose down -v
 ```
 
 > `-v` deletes the local database volume.
-
----
-
-## Project Structure
-
-```text
-WebShopMVC/
-├── Areas/
-│   ├── Admin/
-│   └── Identity/
-├── Controllers/
-│   ├── CartController.cs
-│   └── HomeController.cs
-├── Data/
-│   ├── ApplicationDbContext.cs
-│   ├── ApplicationUser.cs
-│   ├── DevelopmentDataInitializer.cs
-│   └── Migrations/
-├── Extensions/
-├── Models/
-├── Views/
-├── wwwroot/
-├── Program.cs
-└── Dockerfile
-
-docker-compose.yml
-.env.example
-```
 
 ---
 
