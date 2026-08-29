@@ -12,22 +12,22 @@ The application uses **Entity Framework Core with SQL Server** for persistence, 
 
 ### Storefront
 
-* Product catalog with images and category associations
-* Product detail pages
-* Filtering by category and price range
-* Sorting by price or product name
-* Application-level pagination
-* Product quantity and discount information
+- Product catalog with images and category associations
+- Product detail pages
+- Filtering by category and price range
+- Sorting by price or product name
+- Application-level pagination
+- Product quantity and discount information
 
 ### Shopping Cart
 
 The cart is stored in ASP.NET Core session and supports:
 
-* adding and removing products
-* changing quantities
-* stock-aware quantity validation
-* discounted line-total calculation
-* validation before checkout
+- adding and removing products
+- changing quantities
+- stock-aware quantity validation
+- discounted line-total calculation
+- validation before checkout
 
 If the requested quantity exceeds available stock, the cart quantity is adjusted before the order can be created.
 
@@ -54,12 +54,12 @@ The `/Admin` area is protected with role-based authorization:
 
 Administrative workflows include management of:
 
-* products
-* categories
-* product-category associations
-* product images
-* orders and order items
-* Identity roles
+- products
+- categories
+- product-category associations
+- product images
+- orders and order items
+- Identity roles
 
 Deleting an order restores the associated quantities back to product inventory before removing the order.
 
@@ -84,9 +84,9 @@ MVC Controllers
   │
   └── ApplicationDbContext
          ↓
-     Entity Framework Core
+      Entity Framework Core
          ↓
-      SQL Server
+       SQL Server
 ```
 
 Controllers coordinate application workflows and access `ApplicationDbContext` through dependency injection.
@@ -123,12 +123,12 @@ Authentication is provided by **ASP.NET Core Identity** with Entity Framework Co
 
 The application uses:
 
-* registered Identity users
-* confirmed-account sign-in
-* Identity roles
-* `[Authorize]` for authenticated workflows
-* `[Authorize(Roles = "Admin")]` for administration
-* ownership checks for user-specific order details
+- registered Identity users
+- confirmed-account sign-in
+- Identity roles
+- `[Authorize]` for authenticated workflows
+- `[Authorize(Roles = "Admin")]` for administration
+- ownership checks for user-specific order details
 
 A development Admin account is initialized separately from EF Core migrations and only in the **Development** environment.
 
@@ -203,7 +203,7 @@ and replace the placeholder values:
 
 ```dotenv
 SQL_SA_PASSWORD=ReplaceWithStrongLocalSqlPassword1!
-DEVELOPMENT_ADMIN_EMAIL=admin@admin.com
+DEVELOPMENT_ADMIN_EMAIL=admin@example.com
 DEVELOPMENT_ADMIN_PASSWORD=ReplaceWithStrongLocalAdminPassword1!
 ```
 
@@ -239,19 +239,19 @@ docker compose down -v
 
 ## Technology Stack
 
-**Backend**
+**Backend**  
 C# · .NET 10 · ASP.NET Core MVC · Razor
 
-**Data**
+**Data**  
 SQL Server · Entity Framework Core · Code-First · EF Core Migrations · LINQ
 
-**Security**
+**Security**  
 ASP.NET Core Identity · Authentication · Role-based Authorization
 
-**Business Workflows**
+**Business Workflows**  
 Product Catalog · Shopping Cart · Checkout · Orders · Inventory · Administration
 
-**Infrastructure**
+**Infrastructure**  
 Docker · Docker Compose · SQL Server Container · User Secrets · Environment Configuration
 
 ---
@@ -262,11 +262,11 @@ WebShopMVC is intentionally designed as a focused MVC e-commerce application rat
 
 Key implementation choices include:
 
-* direct EF Core access from MVC controllers;
-* session-backed shopping cart state;
-* application-level catalog filtering, sorting, and pagination;
-* local checkout and order processing without an external payment provider;
-* automatic migrations and Development-only Admin initialization.
+- direct EF Core access from MVC controllers;
+- session-backed shopping cart state;
+- application-level catalog filtering, sorting, and pagination;
+- local checkout and order processing without an external payment provider;
+- automatic migrations and Development-only Admin initialization.
 
 In a larger production system, these areas could evolve toward dedicated application services, database-level pagination, distributed session/cache infrastructure, external payment workflows, and independently managed database deployments.
 
